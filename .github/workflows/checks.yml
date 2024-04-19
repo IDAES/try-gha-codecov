@@ -66,6 +66,8 @@ jobs:
           if-no-files-found: error
       - name: Upload event payload
         uses: actions/upload-artifact@v4
+        # ensure this is uploaded only once
+        if: matrix.coverage && matrix.os == 'linux'
         with:
           path: ${{ github.event_path }}
           name: event-payload
