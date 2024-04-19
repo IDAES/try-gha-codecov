@@ -37,23 +37,22 @@ jobs:
           ls -lahR
           gh run download ${{ github.event.workflow_run.id }} --repo ${{ github.repository }} --pattern 'coverage-report-*'
           ls -lahR
-      - name: Overwrite event payload with one from triggering workflow
+      - name: Download event payload
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run download ${{ github.event.workflow_run.id }} --repo ${{ github.repository }} --name event-payload
           ls -lah
-          mv event.json ${{ github.event_path }}
-      - name: Show event payload after overwrite
-        uses: actions/github-script@v7
-        with:
-          script: |
-            txt = JSON.stringify(context.payload.workflow_run, null, 4);
-            core.summary.addCodeBlock(txt, 'json');
-            core.summary.write()
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
+          name: ${{ github.event.workflow_run.id }}
+          job_code: ${{ github.event.workflow_run.name }}
+          override_build: ${{ github.event.workflow_run.id }}
+          override_build_url: ${{ github.event.workflow_run.html_url }}
+          override_commit: ${{ github.event.workflow_run.head_sha }}
+          override_branch: ${{ github.event.workflow_run.head_branch }}
+          override_pr: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0].number || '' }}
