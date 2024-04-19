@@ -18,5 +18,5 @@ def test_some_other_function():
 
 
 def test_one_more_function():
-    res = sample.one_more_function()
+    res = sample.wrong_name()
     assert res is not None
