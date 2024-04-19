@@ -15,3 +15,8 @@ def test_some_function():
 def test_some_other_function():
     res = sample.some_other_function()
     assert res is not None
+
+
+def test_one_more_function():
+    res = sample.one_more_function()
+    assert res is not None
