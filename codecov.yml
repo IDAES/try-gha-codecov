@@ -17,6 +17,3 @@ codecov:
     wait_for_ci: false
     # after_n_builds should match the number of CI jobs configured to upload reports to Codecov
     after_n_builds: 1
-comment:
-  layout: "condensed_header, condensed_files, condensed_footer"
-  hide_project_coverage: false
