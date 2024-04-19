@@ -17,3 +17,10 @@ def some_other_function():
     b = 2
     c = 4
     return a, b, c
+
+
+def yet_another_function():
+    a = 1
+    b = 2
+    c = 4
+    return a, b, c
