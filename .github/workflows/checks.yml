@@ -64,3 +64,9 @@ jobs:
           name: coverage-report-${{ matrix.os }}
           path: coverage.xml
           if-no-files-found: error
+      - name: Upload event payload
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ github.event_path }}
+          name: event-payload
+          if-no-files-found: error
