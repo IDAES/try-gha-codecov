@@ -37,12 +37,16 @@ jobs:
           ls -lahR
           gh run download ${{ github.event.workflow_run.id }} --repo ${{ github.repository }} --pattern 'coverage-report-*'
           ls -lahR
-      - name: Download event payload
+      - name: Get PR number from triggered event payload
+        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        id: pr-info
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh run download ${{ github.event.workflow_run.id }} --repo ${{ github.repository }} --name event-payload
           ls -lah
+          pr_number="$(jq < event.json '.number')"
+          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -55,4 +59,4 @@ jobs:
           override_build_url: ${{ github.event.workflow_run.html_url }}
           override_commit: ${{ github.event.workflow_run.head_sha }}
           override_branch: ${{ github.event.workflow_run.head_branch }}
-          override_pr: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0].number || '' }}
+          override_pr: ${{ github.event.workflow_run.event == 'pull_request' && steps.pr-info.outputs.number || '' }}
