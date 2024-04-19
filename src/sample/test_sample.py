@@ -10,3 +10,8 @@ def test_version():
 def test_some_function():
     res = sample.some_function()
     assert res is not None
+
+
+def test_some_other_function():
+    res = sample.some_other_function()
+    assert res is not None
