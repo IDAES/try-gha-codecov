@@ -23,4 +23,6 @@ def yet_another_function():
     a = 1
     b = 2
     c = 4
+    e = 8
+    f = 16
     return a, b, c
