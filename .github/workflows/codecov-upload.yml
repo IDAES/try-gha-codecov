@@ -50,19 +50,11 @@ jobs:
 
           ls -lah
 
-          # if there's no .number key in the JSON (i.e. when the triggering event is not `pull_request` or `pull_request_target`),
-          # the jq command will not error out and pr_number will be set to ''
-          # this is OK for the purposes of codecov-action@v4 inputs (set PR number if event is PR; otherwise don't),
-          # so we don't need to add a conditional to run this step only for PR events
-          pr_number="$(jq < event.json '.number')"
+          # without // empty, jq will return the empty string when called interactively,
+          # but the string "null" when called e.g. through $()
+          # we need the string to be empty for the logic to work correctly in the following step(s)
+          pr_number="$(jq < event.json '.number // empty')"
           echo "pr-number=$pr_number" >> "$GITHUB_OUTPUT"
-      - name: Show event-info.outputs
-        uses: actions/github-script@v7
-        with:
-          script: |
-            txt = JSON.stringify(${{ steps.event-info.outputs }}, null, 4);
-            core.summary.addCodeBlock(txt, 'json');
-            core.summary.write()
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -75,4 +67,4 @@ jobs:
           override_build_url: ${{ github.event.workflow_run.html_url }}
           override_commit: ${{ github.event.workflow_run.head_sha }}
           override_branch: ${{ github.event.workflow_run.head_branch }}
-          override_pr: ${{ steps.event-info.outputs.pr-number || ''}}
+          override_pr: ${{ steps.event-info.outputs.pr-number }}
