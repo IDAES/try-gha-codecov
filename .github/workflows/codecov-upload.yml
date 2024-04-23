@@ -68,4 +68,4 @@ jobs:
           override_build_url: ${{ github.event.workflow_run.html_url }}
           override_commit: ${{ github.event.workflow_run.head_sha }}
           override_branch: ${{ github.event.workflow_run.head_branch }}
-          override_pr: ${{ steps.event-info.outputs.pr-number }}
+          override_pr: ${{ steps.event-info.outputs.pr-number || ''}}
