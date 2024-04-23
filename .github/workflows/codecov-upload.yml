@@ -1,5 +1,5 @@
 name: Upload to Codecov
-run-name: 'Upload to Codecov: ${{ github.event.workflow_run.display_title }}'
+run-name: 'Codecov: ${{ github.event.workflow_run.display_title }}'
 on:
   workflow_run:
     workflows:
