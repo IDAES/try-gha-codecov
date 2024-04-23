@@ -67,7 +67,7 @@ jobs:
       - name: Upload event payload
         uses: actions/upload-artifact@v4
         # ensure this is uploaded only once
-        if: matrix.coverage && matrix.os == 'linux'
+        if: strategy.job-index == '0'
         with:
           path: ${{ github.event_path }}
           name: event-payload
