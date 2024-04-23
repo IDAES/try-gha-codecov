@@ -56,6 +56,13 @@ jobs:
           # so we don't need to add a conditional to run this step only for PR events
           pr_number="$(jq < event.json '.number')"
           echo "pr-number=$pr_number" >> "$GITHUB_OUTPUT"
+      - name: Show event-info.outputs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            txt = JSON.stringify(${{ steps.event-info.outputs }}, null, 4);
+            core.summary.addCodeBlock(txt, 'json');
+            core.summary.write()
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
