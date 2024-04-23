@@ -22,6 +22,8 @@ jobs:
   upload:
     name: Upload coverage reports
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -31,22 +33,29 @@ jobs:
       - name: Display codecov.yml file
         run: cat codecov.yml
       - name: Download artifacts from triggering workflow
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ls -lahR
-          gh run download ${{ github.event.workflow_run.id }} --repo ${{ github.repository }} --pattern 'coverage-report-*'
+
+          gh run download ${{ github.event.workflow_run.id }} \
+          --repo ${{ github.repository }} \
+          --pattern 'coverage-report-*'
+
           ls -lahR
-      - name: Get PR number from triggered event payload
-        if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        id: pr-info
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Collect information from triggered event payload
+        id: event-info
         run: |
-          gh run download ${{ github.event.workflow_run.id }} --repo ${{ github.repository }} --name event-payload
+          gh run download ${{ github.event.workflow_run.id }} \
+          --repo ${{ github.repository }} \
+          --name event-payload
+
           ls -lah
+
+          # if there's no .number key in the JSON (i.e. when the triggering event is not `pull_request` or `pull_request_target`),
+          # the jq command will not error out and pr_number will be set to ''
+          # this is OK for the purposes of codecov-action@v4 inputs (set PR number if event is PR; otherwise don't),
+          # so we don't need to add a conditional to run this step only for PR events
           pr_number="$(jq < event.json '.number')"
-          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
+          echo "pr-number=$pr_number" >> "$GITHUB_OUTPUT"
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -59,4 +68,4 @@ jobs:
           override_build_url: ${{ github.event.workflow_run.html_url }}
           override_commit: ${{ github.event.workflow_run.head_sha }}
           override_branch: ${{ github.event.workflow_run.head_branch }}
-          override_pr: ${{ github.event.workflow_run.event == 'pull_request' && steps.pr-info.outputs.number || '' }}
+          override_pr: ${{ steps.event-info.outputs.pr-number }}
